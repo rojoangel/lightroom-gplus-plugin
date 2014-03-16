@@ -8,7 +8,7 @@ local LrView = import 'LrView'
 local bind = LrView.bind
 local share = LrView.share
 
--- Flickr plug-in
+-- GPlus plug-in
 require 'GPlusAPI'
 require 'GPlusPublishSupport'
 
@@ -127,8 +127,7 @@ exportServiceProvider.exportPresetFields = {
 -- @name exportServiceProvider.showSections
 -- @class property
 
--- TODO: Review this
---exportServiceProvider.showSections = { 'fileNaming', 'fileSettings', etc... } -- not used for Flickr plug-in
+--exportServiceProvider.showSections = { 'fileNaming', 'fileSettings', etc... } -- not used for GPlus plug-in
 
 --------------------------------------------------------------------------------
 --- (optional) Plug-in defined value suppresses the display of the named sections in
@@ -152,7 +151,6 @@ exportServiceProvider.exportPresetFields = {
 -- @name exportServiceProvider.hideSections
 -- @class property
 
--- TODO: Review this
 exportServiceProvider.hideSections = { 'exportLocation' }
 
 --------------------------------------------------------------------------------
@@ -165,7 +163,7 @@ exportServiceProvider.hideSections = { 'exportLocation' }
 -- @name exportServiceProvider.canExportToTemporaryLocation
 -- @class property
 
--- exportServiceProvider.canExportToTemporaryLocation = true -- not used for Flickr plug-in
+-- exportServiceProvider.canExportToTemporaryLocation = true -- not used for GPlus plug-in
 
 --------------------------------------------------------------------------------
 --- (optional) Plug-in defined value restricts the available file format choices in the
@@ -207,7 +205,7 @@ exportServiceProvider.allowFileFormats = { 'JPEG' }
 -- @name exportServiceProvider.disallowFileFormats
 -- @class property
 
---exportServiceProvider.disallowFileFormats = { 'PSD', 'TIFF', 'DNG', 'ORIGINAL' } -- not used for Flickr plug-in
+--exportServiceProvider.disallowFileFormats = { 'PSD', 'TIFF', 'DNG', 'ORIGINAL' } -- not used for GPlus plug-in
 
 --------------------------------------------------------------------------------
 --- (optional) Plug-in defined value restricts the available color space choices in the
@@ -243,8 +241,7 @@ exportServiceProvider.allowColorSpaces = { 'sRGB' }
 -- @name exportServiceProvider.disallowColorSpaces
 -- @class property
 
-
---exportServiceProvider.disallowColorSpaces = { 'AdobeRGB', 'ProPhotoRGB' } -- not used for Flickr plug-in
+--exportServiceProvider.disallowColorSpaces = { 'AdobeRGB', 'ProPhotoRGB' } -- not used for GPlus plug-in
 
 --------------------------------------------------------------------------------
 --- (optional, Boolean) Plug-in defined value is true to hide print resolution controls
@@ -270,13 +267,12 @@ exportServiceProvider.hidePrintResolution = true
 exportServiceProvider.canExportVideo = false -- video is not supported through this sample plug-in
 
 --------------------------------------------------------------------------------
--- FLICKR SPECIFIC: Helper functions and tables.
+-- GPLUS SPECIFIC: Helper functions and tables.
 
--- TODO: Review this
 local function updateCantExportBecause( propertyTable )
 
     if not propertyTable.validAccount then
-        propertyTable.LR_cantExportBecause = LOC "$$$/GPlus/ExportDialog/NoLogin=You haven't logged in to Flickr yet."
+        propertyTable.LR_cantExportBecause = LOC "$$$/GPlus/ExportDialog/NoLogin=You haven't logged in to G+ yet."
         return
     end
 
@@ -319,11 +315,11 @@ local contentTypeToNumber = {
     other = 3,
 }
 
-local function getFlickrTitle( photo, exportSettings, pathOrMessage )
+local function getGPlusTitle( photo, exportSettings, pathOrMessage )
 
     local title
 
-    -- Get title according to the options in Flickr Title section.
+    -- Get title according to the options in GPlus Title section.
 
     if exportSettings.titleFirstChoice == 'filename' then
 
@@ -397,7 +393,7 @@ end
 -- @class function
 
 --function exportServiceProvider.endDialog( propertyTable )
--- not used for Flickr plug-in
+-- not used for GPlus plug-in
 --end
 
 --------------------------------------------------------------------------------
@@ -426,7 +422,7 @@ function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
     return {
 
         {
-            title = LOC "$$$/GPlus/ExportDialog/Account=Flickr Account",
+            title = LOC "$$$/GPlus/ExportDialog/Account=G+ Account",
 
             synopsis = bind 'accountStatus',
 
@@ -440,7 +436,7 @@ function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
                 },
 
                 f:push_button {
-                    width = tonumber( LOC "$$$/locale_metric/Flickr/ExportDialog/LoginButton/Width=90" ),
+                    width = tonumber( LOC "$$$/locale_metric/GPlus/ExportDialog/LoginButton/Width=90" ),
                     title = bind 'loginButtonTitle',
                     enabled = bind 'loginButtonEnabled',
                     action = function()
@@ -453,7 +449,7 @@ function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
         },
 
         {
-            title = LOC "$$$/GPlus/ExportDialog/Title=Flickr Title",
+            title = LOC "$$$/GPlus/ExportDialog/Title=G+ Title",
 
             synopsis = function( props )
                 if props.titleFirstChoice == 'title' then
@@ -470,14 +466,14 @@ function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
                     spacing = f:label_spacing(),
 
                     f:static_text {
-                        title = LOC "$$$/GPlus/ExportDialog/ChooseTitleBy=Set Flickr Title Using:",
+                        title = LOC "$$$/GPlus/ExportDialog/ChooseTitleBy=Set G+ Title Using:",
                         alignment = 'right',
-                        width = share 'flickrTitleSectionLabel',
+                        width = share 'gplusTitleSectionLabel',
                     },
 
                     f:popup_menu {
                         value = bind 'titleFirstChoice',
-                        width = share 'flickrTitleLeftPopup',
+                        width = share 'gplusTitleLeftPopup',
                         items = {
                             { value = 'filename', title = displayNameForTitleChoice.filename },
                             { value = 'title', title = displayNameForTitleChoice.title },
@@ -508,12 +504,12 @@ function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
                     f:static_text {
                         title = LOC "$$$/GPlus/ExportDialog/OnUpdate=When Updating Photos:",
                         alignment = 'right',
-                        width = share 'flickrTitleSectionLabel',
+                        width = share 'gplusTitleSectionLabel',
                     },
 
                     f:popup_menu {
                         value = bind 'titleRepublishBehavior',
-                        width = share 'flickrTitleLeftPopup',
+                        width = share 'gplusTitleLeftPopup',
                         items = {
                             { value = 'replace', title = LOC "$$$/GPlus/ExportDialog/ReplaceExistingTitle=Replace Existing Title" },
                             { value = 'leaveAsIs', title = LOC "$$$/GPlus/ExportDialog/LeaveAsIs=Leave Existing Title" },
@@ -648,12 +644,12 @@ function exportServiceProvider.sectionsForBottomOfDialog( f, propertyTable )
                     f:static_text {
                         title = LOC "$$$/GPlus/ExportDialog/Safety=Safety:",
                         alignment = 'right',
-                        width = share 'flickr_col2_label_width',
+                        width = share 'gplus_col2_label_width',
                     },
 
                     f:popup_menu {
                         value = bind 'safety',
-                        width = share 'flickr_col2_popup_width',
+                        width = share 'gplus_col2_popup_width',
                         items = {
                             { title = kSafetyTitles.safe, value = 'safe' },
                             { title = kSafetyTitles.moderate, value = 'moderate' },
@@ -666,7 +662,7 @@ function exportServiceProvider.sectionsForBottomOfDialog( f, propertyTable )
                     margin_bottom = f:control_spacing() / 2,
 
                     f:spacer {
-                        width = share 'flickr_col2_label_width',
+                        width = share 'gplus_col2_label_width',
                     },
 
                     f:checkbox {
@@ -679,11 +675,11 @@ function exportServiceProvider.sectionsForBottomOfDialog( f, propertyTable )
                     f:static_text {
                         title = LOC "$$$/GPlus/ExportDialog/Type=Type:",
                         alignment = 'right',
-                        width = share 'flickr_col2_label_width',
+                        width = share 'gplus_col2_label_width',
                     },
 
                     f:popup_menu {
-                        width = share 'flickr_col2_popup_width',
+                        width = share 'gplus_col2_popup_width',
                         value = bind 'type',
                         items = {
                             { title = LOC "$$$/GPlus/ExportDialog/Type/Photo=Photo", value = 'photo' },
@@ -707,7 +703,7 @@ end
 -- @name exportServiceProvider.updateExportSettings
 -- @class function
 
--- function exportServiceProvider.updateExportSettings( exportSettings ) -- not used for the Flickr sample plug-in
+-- function exportServiceProvider.updateExportSettings( exportSettings ) -- not used for the GPlus sample plug-in
 
 -- This example would cause the export to generate very low-quality JPEG files.
 
@@ -747,8 +743,8 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 
     local progressScope = exportContext:configureProgress {
         title = nPhotos > 1
-                and LOC( "$$$/GPlus/Publish/Progress=Publishing ^1 photos to Flickr", nPhotos )
-                or LOC "$$$/GPlus/Publish/Progress/One=Publishing one photo to Flickr",
+                and LOC( "$$$/GPlus/Publish/Progress=Publishing ^1 photos to G+", nPhotos )
+                or LOC "$$$/GPlus/Publish/Progress/One=Publishing one photo to G+",
     }
 
     -- Save off uploaded photo IDs so we can take user to those photos later.
@@ -779,33 +775,33 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
     end
 
     local couldNotPublishBecauseFreeAccount = {}
-    local flickrPhotoIdsForRenditions = {}
+    local gplusPhotoIdsForRenditions = {}
 
     local cannotRepublishCount = 0
 
-    -- Gather flickr photo IDs, and if we're on a free account, remember the renditions that
+    -- Gather G+ photo IDs, and if we're on a free account, remember the renditions that
     -- had been previously published.
 
     for i, rendition in exportContext.exportSession:renditions() do
 
-        local flickrPhotoId = rendition.publishedPhotoId
+        local gplusPhotoId = rendition.publishedPhotoId
 
-        if flickrPhotoId then
+        if gplusPhotoId then
 
-            -- Check to see if the photo is still on Flickr.
+            -- Check to see if the photo is still on GPlus.
 
-            if not photosetPhotosSet[ flickrPhotoId ] and not isDefaultCollection then
-                flickrPhotoId = nil
+            if not photosetPhotosSet[ gplusPhotoId ] and not isDefaultCollection then
+                gplusPhotoId = nil
             end
 
         end
 
-        if flickrPhotoId and not exportSettings.isUserPro then
+        if gplusPhotoId and not exportSettings.isUserPro then
             couldNotPublishBecauseFreeAccount[ rendition ] = true
             cannotRepublishCount = cannotRepublishCount + 1
         end
 
-        flickrPhotoIdsForRenditions[ rendition ] = flickrPhotoId
+        gplusPhotoIdsForRenditions[ rendition ] = gplusPhotoId
 
     end
 
@@ -814,10 +810,10 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
     if cannotRepublishCount	> 0 then
 
         local message = ( cannotRepublishCount == 1 ) and
-                LOC( "$$$/GPlus/FreeAccountErr/Singular/ThereIsAPhotoToUpdateOnFlickr=There is one photo to update on Flickr" )
-                or LOC( "$$$/GPlus/FreeAccountErr/Plural/ThereIsAPhotoToUpdateOnFlickr=There are ^1 photos to update on Flickr", cannotRepublishCount )
+                LOC( "$$$/GPlus/FreeAccountErr/Singular/ThereIsAPhotoToUpdateOnGPlus=There is one photo to update on G+" )
+                or LOC( "$$$/GPlus/FreeAccountErr/Plural/ThereIsAPhotoToUpdateOnGPlus=There are ^1 photos to update on G+", cannotRepublishCount )
 
-        local messageInfo = LOC( "$$$/GPlus/FreeAccountErr/Singular/CommentsAndRatingsWillBeLostWarning=With a free (non-Pro) Flickr account, all comments and ratings will be lost on updated photos. Are you sure you want to do this?" )
+        local messageInfo = LOC( "$$$/GPlus/FreeAccountErr/Singular/CommentsAndRatingsWillBeLostWarning=With a free (non-Pro) G+ account, all comments and ratings will be lost on updated photos. Are you sure you want to do this?" )
 
         local action = LrDialogs.promptForActionWithDoNotShow {
             message = message,
@@ -871,7 +867,7 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 
         -- See if we previously uploaded this photo.
 
-        local flickrPhotoId = flickrPhotoIdsForRenditions[ rendition ]
+        local gplusPhotoId = gplusPhotoIdsForRenditions[ rendition ]
 
         if not rendition.wasSkipped then
 
@@ -889,7 +885,7 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 
                 -- Build up common metadata for this photo.
 
-                local title = getFlickrTitle( photo, exportSettings, pathOrMessage )
+                local title = getGPlusTitle( photo, exportSettings, pathOrMessage )
 
                 local description = photo:getFormattedMetadata( 'caption' )
                 local keywordTags = photo:getFormattedMetadata( 'keywordTagsForExport' )
@@ -918,7 +914,7 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 
                 end
 
-                -- Flickr will pick up LR keywords from XMP, so we don't need to merge them here.
+                -- G+ will pick up LR keywords from XMP, so we don't need to merge them here.
 
                 local is_public = privacyToNumber[ exportSettings.privacy ]
                 local is_friend = booleanToNumber( exportSettings.privacy_friends )
@@ -927,31 +923,31 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
                 local content_type = contentTypeToNumber[ exportSettings.type ]
                 local hidden = exportSettings.hideFromPublic and 2 or 1
 
-                -- Because it is common for Flickr users (even viewers) to add additional tags via
-                -- the Flickr web site, so we should not remove extra keywords that do not correspond
+                -- Because it is common for G+ users (even viewers) to add additional tags via
+                -- the G+ web site, so we should not remove extra keywords that do not correspond
                 -- to keywords in Lightroom. In order to do so, we record the tags that we uploaded
                 -- this time. Next time, we will compare the previous tags with these current tags.
                 -- We use the difference between tag sets to determine if we should remove a tag (i.e.
                 -- it was one we uploaded and is no longer present in Lightroom) or not (i.e. it was
-                -- added by user on Flickr and never was present in Lightroom).
+                -- added by user on G+ and never was present in Lightroom).
 
                 local previous_tags = photo:getPropertyForPlugin( _PLUGIN, 'previous_tags' )
 
-                -- If on a free account and this photo already exists, delete it from Flickr.
+                -- If on a free account and this photo already exists, delete it from G+.
 
-                if flickrPhotoId and not exportSettings.isUserPro then
+                if gplusPhotoId and not exportSettings.isUserPro then
 
-                    GPlusAPI.deletePhoto( exportSettings, { photoId = flickrPhotoId, suppressError = true } )
-                    flickrPhotoId = nil
+                    GPlusAPI.deletePhoto( exportSettings, { photoId = gplusPhotoId, suppressError = true } )
+                    gplusPhotoId = nil
 
                 end
 
                 -- Upload or replace the photo.
 
-                local didReplace = not not flickrPhotoId
+                local didReplace = not not gplusPhotoId
 
-                flickrPhotoId = GPlusAPI.uploadPhoto( exportSettings, {
-                    photo_id = flickrPhotoId,
+                gplusPhotoId = GPlusAPI.uploadPhoto( exportSettings, {
+                    photo_id = gplusPhotoId,
                     filePath = pathOrMessage,
                     title = title or '',
                     description = description,
@@ -972,8 +968,8 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
                     if exportSettings.titleRepublishBehavior == 'replace' then
 
                         GPlusAPI.callRestMethod( exportSettings, {
-                            method = 'flickr.photos.setMeta',
-                            photo_id = flickrPhotoId,
+                            method = 'gPlus.photos.setMeta',
+                            photo_id = gplusPhotoId,
                             title = title or '',
                             description = description or '',
                         } )
@@ -981,8 +977,8 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
                     end
 
                     GPlusAPI.callRestMethod( exportSettings, {
-                        method = 'flickr.photos.setPerms',
-                        photo_id = flickrPhotoId,
+                        method = 'gPlus.photos.setPerms',
+                        photo_id = gplusPhotoId,
                         is_public = is_public,
                         is_friend = is_friend,
                         is_family = is_family,
@@ -991,22 +987,22 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
                     } )
 
                     GPlusAPI.callRestMethod( exportSettings, {
-                        method = 'flickr.photos.setSafetyLevel',
-                        photo_id = flickrPhotoId,
+                        method = 'gPlus.photos.setSafetyLevel',
+                        photo_id = gplusPhotoId,
                         safety_level = safety_level,
                         hidden = (hidden == 2) and 1 or 0,
                     } )
 
                     GPlusAPI.callRestMethod( exportSettings, {
-                        method = 'flickr.photos.setContentType',
-                        photo_id = flickrPhotoId,
+                        method = 'gPlus.photos.setContentType',
+                        photo_id = gplusPhotoId,
                         content_type = content_type,
                     } )
 
                 end
 
                 GPlusAPI.setImageTags( exportSettings, {
-                    photo_id = flickrPhotoId,
+                    photo_id = gplusPhotoId,
                     tags = table.concat( tags, ',' ),
                     previous_tags = previous_tags,
                     is_public = is_public,
@@ -1019,7 +1015,7 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 
                 -- Remember this in the list of photos we uploaded.
 
-                uploadedPhotoIds[ #uploadedPhotoIds + 1 ] = flickrPhotoId
+                uploadedPhotoIds[ #uploadedPhotoIds + 1 ] = gplusPhotoId
 
                 -- If this isn't the Photostream, set up the photoset.
 
@@ -1046,16 +1042,16 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 
                 end
 
-                -- Record this Flickr ID with the photo so we know to replace instead of upload.
+                -- Record this GPlus ID with the photo so we know to replace instead of upload.
 
-                rendition:recordPublishedPhotoId( flickrPhotoId )
+                rendition:recordPublishedPhotoId( gplusPhotoId )
 
                 local photoUrl
 
                 if ( not isDefaultCollection ) then
 
                     photoUrl = GPlusAPI.constructPhotoURL( exportSettings, {
-                        photo_id = flickrPhotoId,
+                        photo_id = gplusPhotoId,
                         photosetId = photosetId,
                         is_public = is_public,
                     } )
@@ -1063,14 +1059,14 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
                     -- Add the uploaded photos to the correct photoset.
 
                     GPlusAPI.addPhotosToSet( exportSettings, {
-                        photoId = flickrPhotoId,
+                        photoId = gplusPhotoId,
                         photosetId = photosetId,
                     } )
 
                 else
 
                     photoUrl = GPlusAPI.constructPhotoURL( exportSettings, {
-                        photo_id = flickrPhotoId,
+                        photo_id = gplusPhotoId,
                         is_public = is_public,
                     } )
 
@@ -1078,8 +1074,8 @@ function exportServiceProvider.processRenderedPhotos( functionContext, exportCon
 
                 rendition:recordPublishedPhotoUrl( photoUrl )
 
-                -- Because it is common for Flickr users (even viewers) to add additional tags
-                -- via the Flickr web site, so we can avoid removing those user-added tags that
+                -- Because it is common for GPlus users (even viewers) to add additional tags
+                -- via the GPlus web site, so we can avoid removing those user-added tags that
                 -- were never in Lightroom to begin with. See earlier comment.
 
                 photo.catalog:withPrivateWriteAccessDo( function()

@@ -1,7 +1,7 @@
 --[[----------------------------------------------------------------------------
 
 GPlusAPI.lua
-Common code to initiate Flickr API requests
+Common code to initiate G+ API requests
 
 --------------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ local appearsAlive
 --------------------------------------------------------------------------------
 
 local function formatError( nativeErrorCode )
-    return LOC "$$$/GPlus/Error/NetworkFailure=Could not contact the Flickr web service. Please check your Internet connection."
+    return LOC "$$$/GPlus/Error/NetworkFailure=Could not contact the G+ web service. Please check your Internet connection."
 end
 
 --------------------------------------------------------------------------------
@@ -108,7 +108,7 @@ end
 
 --------------------------------------------------------------------------------
 
--- We can't include a Flickr API key with the source code for this plug-in, so
+-- We can't include a G+ API key with the source code for this plug-in, so
 -- we require you obtain one on your own and enter it through this dialog.
 
 --------------------------------------------------------------------------------
